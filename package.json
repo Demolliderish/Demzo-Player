@@ -1,0 +1,11 @@
+{
+  "name": "demzo-video-player",
+  "version": "1.0.0",
+  "description": "A custom-made video player aimed to add useful and cutomisable features",
+  "main": "player.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "demzo",
+  "license": "ISC"
+}

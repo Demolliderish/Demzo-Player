@@ -206,4 +206,4 @@ function formatDuration(time) {
     }
 }
 
-export default FullScreenControls
+module.exports = FullScreenControls

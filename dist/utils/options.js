@@ -325,4 +325,4 @@ function sourceElement(source, type, selected = false) {
     `
 }
 
-export default UtilsVideoOptions
+module.exports = UtilsVideoOptions

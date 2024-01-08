@@ -1,5 +1,5 @@
-import FullScreenControls from "./utils/fullscreen.js"
-import UtilsVideoOptions from "./utils/options.js"
+const FullScreenControls = require('./utils/fullscreen.js');
+const UtilsVideoOptions = require('./utils/options.js');
 
 class demzoPlayer {
     constructor(src, {
@@ -503,4 +503,4 @@ function formatDuration(time) {
     }
 }
 
-export default demzoPlayer;
+module.exports = demzoPlayer;

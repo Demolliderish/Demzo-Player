@@ -2,11 +2,11 @@
   "name": "demzo-player",
   "version": "1.0.2",
   "description": "A custom-made video player aimed to add useful and cutomisable features",
-  "main": "./dist/player.js",
+  "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "demzo",
-  "license": "ISC",
+  "license": "MIT",
   "type": "module"
 }

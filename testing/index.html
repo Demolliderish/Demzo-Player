@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="../dist/reset.css">
+    <link rel="stylesheet" href="../dist/styles.css">
+</head>
+
+<body>
+
+    <div class="player-container">
+
+    </div>
+
+    <script type="module">
+        import utilPlayer from '../dist/player.js'
+
+        const player = new utilPlayer(false, {
+            container: document.querySelector('.player-container'),
+            doubleTap: true,
+            slideControls: {
+                seek: {
+                    enable: true
+                }
+            },
+            theme: '#ED9F4A',
+            sources: {
+                default: {
+                    title: 'Elephant',
+                    src: 'http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4"'
+                },
+                others: [
+                    {
+                        title: 'Bunny',
+                        src: 'http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4'
+                    }
+                ]
+
+            },
+            captions: {
+                default: {
+                    title: 'English',
+                    src: './subtitles.vtt'
+                },
+                others: [
+                    {
+                        title: 'Other',
+                        src: './other.vtt',
+                        srclang: 'other'
+                    }
+                ]
+
+            }
+        })
+    </script>
+</body>
+
+</html>

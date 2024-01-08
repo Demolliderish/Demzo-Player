@@ -4,6 +4,11 @@
     box-sizing: border-box;
 }
 
+:root {
+    --themeMainColor: #C082FF;
+}
+
+
 * {
     transition-duration: 250ms;
     font-family: Arial, Helvetica, sans-serif;
@@ -50,7 +55,7 @@ body {
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    background-color: #C082FF;
+    background-color: var(--themeMainColor);
     border-radius: 9999999px;
     z-index: 11;
 }
@@ -85,6 +90,14 @@ body {
 
 .video-container:hover .video-controls {
     transform: translateY(0);
+}
+
+.video-container[data-paused="false"] .video-options-container[data-active="true"]>.video-options {
+    opacity: 0;
+}
+
+.video-container:hover .video-options-container[data-active="true"]>.video-options {
+    opacity: 1;
 }
 
 .hidden {
@@ -159,8 +172,11 @@ body {
 .play-pause-btn:hover,
 .volume-btn:hover,
 .full-screen-btn:hover,
+.video-options-btn:hover,
+.video-options-item:hover,
+.captions-btn:hover,
 .mini-player-btn:hover {
-    background-color: #C082FF !important;
+    background-color: var(--themeMainColor) !important;
 }
 
 .video-container[data-paused="true"] .play-icon,
@@ -203,7 +219,7 @@ body {
     cursor: pointer;
     background: rgba(255, 255, 255, 0.6);
     border-radius: 5px;
-    background-image: linear-gradient(#C082FF, #C082FF);
+    background-image: linear-gradient(var(--themeMainColor), var(--themeMainColor));
     background-size: 70% 100%;
     background-repeat: no-repeat;
 }
@@ -248,7 +264,7 @@ body {
     cursor: pointer;
     background: rgba(255, 255, 255, 0.6);
     border-radius: 5px;
-    background-image: linear-gradient(#C082FF, #C082FF);
+    background-image: linear-gradient(var(--themeMainColor), var(--themeMainColor));
     background-size: 0% 100%;
     background-repeat: no-repeat;
     transition: height 300ms ease-in-out;
@@ -353,14 +369,164 @@ body {
 }
 
 /* Mini Player */
-.mini-player-btn {
-    margin-left: auto;
-}
 
 .mini-player-btn svg {
     width: 30px;
 }
 
+/* Video Options */
+
+.video-options-btn {
+    cursor: pointer;
+}
+
+.video-options-btn svg {
+    width: 27px;
+}
+
+
+.video-options-container[data-active="true"] .video-options-btn {
+    background-color: var(--themeMainColor) !important;
+}
+
+.video-options-container[data-active="true"] .video-options-btn>svg {
+    transform: rotate(90deg);
+}
+
+.video-options-container[data-active="true"] .video-options {
+    display: flex;
+}
+
+.video-options-container {
+    position: relative;
+}
+
+.video-options {
+    opacity: 0.9;
+    z-index: 10;
+    position: absolute;
+    bottom: 100%;
+    padding: .5rem;
+    right: 50%;
+    transform: translateX(50%);
+    display: none;
+    flex-direction: column;
+    gap: .5rem;
+    background-color: white;
+    border-radius: 10px;
+}
+
+.video-options-item {
+    padding: 1rem .5rem;
+    display: flex;
+    gap: .5rem;
+    align-items: center;
+    border-radius: 3px;
+    cursor: pointer;
+    height: 20px;
+    transition-duration: 100ms;
+    width: 200px;
+    flex-shrink: 0;
+}
+
+
+.video-options-item h2,
+.video-options-item h1 {
+    font-size: 15px;
+    font-weight: 400;
+}
+
+.video-options-item svg {
+    width: 10px;
+    transition-duration: 0ms;
+}
+
+.video-options-item * {
+    transition-duration: 100ms;
+}
+
+.video-options-item:hover,
+.video-options-item:hover svg {
+    color: white;
+    fill: white;
+}
+
+.video-options-item h2 {
+    margin-left: auto;
+}
+
+.video-options:before {
+    border-left: 4px solid transparent;
+    border-right: 4px solid transparent;
+    border-top: 4px solid hsla(0, 0%, 100%, .9);
+    bottom: -4px;
+    content: "";
+    height: 0;
+    left: 50%;
+    position: absolute;
+    transform: translateX(-50%);
+    width: 0;
+    z-index: 2;
+}
+
+
+.video-options-main,
+.video-options-sources,
+.video-options-speed,
+.video-options-captions {
+    display: none;
+}
+
+.video-options[data-active="main"] .video-options-main,
+.video-options[data-active="sources"] .video-options-sources,
+.video-options[data-active="speed"] .video-options-speed,
+.video-options[data-active="captions"] .video-options-captions {
+    display: flex;
+}
+
+.video-options-sources,
+.video-options-speed {
+    padding-right: 50px;
+    width: auto;
+    gap: .25rem;
+}
+
+.video-options-sources svg,
+.video-options-captions svg,
+.video-options-speed svg {
+    width: 20px;
+    opacity: 0;
+}
+
+
+.video-options-sources[data-selected="true"] svg,
+.video-options-captions[data-selected="true"] svg,
+.video-options-speed[data-selected="true"] svg {
+    opacity: 1;
+}
+
+.video-options-back {
+    text-wrap: nowrap;
+    border-bottom: solid #cbd5e1 1px;
+}
+
+.video-options-back svg {
+    opacity: 1 !important;
+}
+
+/* Video Captions */
+
+.captions-btn {
+    cursor: pointer;
+}
+
+.captions-btn svg {
+    width: 25px;
+}
+
+.video-container[data-captions="true"] .captions-btn {
+    background-color: var(--themeMainColor) !important;
+}
 
 /* Full Screen */
 .full-screen-btn .open,
@@ -511,6 +677,10 @@ body {
     transform: translateY(100%);
 }
 
+.video-container[data-hidecontrols="true"][data-fullscreen="true"] .video-options-container[data-active="true"]>.video-options {
+    opacity: 0;
+}
+
 .double-tap-overlay {
     width: 100%;
     height: 100%;
@@ -526,20 +696,21 @@ body {
     display: flex;
 }
 
-.double-tap-left, .double-tap-right {
-   width: 25%;
-   height: 100%;
-   background-color: rgba(236, 236, 236, 0.3);
-   display: flex;
-   flex-direction: column;
-   align-items: center;
-   justify-content: center;
-   opacity: 0;
+.double-tap-left,
+.double-tap-right {
+    width: 25%;
+    height: 100%;
+    background-color: rgba(236, 236, 236, 0.3);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
 }
 
 .double-tap-left {
-    border-top-right-radius: 50%; 
-    border-bottom-right-radius: 50%; 
+    border-top-right-radius: 50%;
+    border-bottom-right-radius: 50%;
 }
 
 .double-tap-left img {
@@ -547,7 +718,7 @@ body {
 }
 
 .double-tap-right {
-    border-top-left-radius: 50%; 
+    border-top-left-radius: 50%;
     border-bottom-left-radius: 50%;
 }
 
@@ -565,4 +736,12 @@ body {
 .player-container {
     width: 100%;
     height: 100%;
+}
+
+.controls-right {
+    height: 100%;
+    display: flex;
+    gap: .5rem;
+    margin-left: auto;
+    align-items: center;
 }

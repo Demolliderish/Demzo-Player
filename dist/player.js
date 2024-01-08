@@ -1,3 +1,5 @@
+import FullScreenControls from "./utils/fullscreen.js"
+import UtilsVideoOptions from "./utils/options.js"
 
 class utilPlayer {
     constructor(src, {
@@ -5,13 +7,21 @@ class utilPlayer {
         keyboardControls = true,
         slideControls = null,
         volumeControls = true,
-        doubleTap = false
+        doubleTap = false,
+        theme = '#C082FF',
+        speedToggle = true,
+        captions = undefined,
+        sources = undefined
     }) {
         this.src = src
+        this.sources = sources
+        this.captions = captions
+        this.speed = speedToggle
         this.container = container
+        this.theme = theme
         this.keyboardControls = keyboardControls
         this.slideControlsVol = slideControls?.volume ?? false;
-        this.slideControlsScrub = slideControls?.seek ?? false;        
+        this.slideControlsScrub = slideControls?.seek ?? false;
         this.volumeControls = volumeControls
         this.doubleTapControls = doubleTap
         this.volume = 0
@@ -22,11 +32,17 @@ class utilPlayer {
         this.video = null
         this.loadingEl = null
         this.timelineEl = null
+        this.cursorHideTimeout = null
 
         this.init()
     }
 
     init() {
+
+        // Set theme color
+        var r = document.querySelector(':root');
+        r.style.setProperty('--themeMainColor', this.theme);
+
         this.setupPlayer()
         this.defineVideo()
         this.mainListeners()
@@ -35,7 +51,7 @@ class utilPlayer {
     setupPlayer() {
         const playerHTML = `
             <div class="video-container" data-paused="true" data-muted="false" data-fullscreen="false" data-mini="false"
-            data-ismobile="false" data-hidecontrols="false">
+            data-ismobile="false" data-hidecontrols="false" data-captions="false">
 
                 <div class="overlay-pause">
                     <svg class="play-icon" viewBox="0 0 24 24">
@@ -69,23 +85,26 @@ class utilPlayer {
                             <div class="total-time">00:00</div>
                         </div>
 
-                        <button class="mini-player-btn">
-                            <svg viewBox="0 0 24 24">
-                                <path fill="#FFFFFF"
-                                    d="M21 3H3c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H3V5h18v14zm-10-7h9v6h-9z" />
-                            </svg>
-                        </button>
+                        <div class="controls-right">
+                        
+                            <button class="mini-player-btn">
+                                <svg viewBox="0 0 24 24">
+                                    <path fill="#FFFFFF"
+                                        d="M21 3H3c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H3V5h18v14zm-10-7h9v6h-9z" />
+                                </svg>
+                            </button>
 
-                        <button class="full-screen-btn">
-                            <svg class="full-screen-open-icon" viewBox="0 0 24 24">
-                                <path fill="#FFFFFF"
-                                    d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z" />
-                            </svg>
-                            <svg class="full-screen-close-icon" viewBox="0 0 24 24">
-                                <path fill="#FFFFFF"
-                                    d="M5 16h3v3h2v-5H5v2zm3-8H5v2h5V5H8v3zm6 11h2v-3h3v-2h-5v5zm2-11V5h-2v5h5V8h-3z" />
-                            </svg>
-                        </button>
+                            <button class="full-screen-btn">
+                                <svg class="full-screen-open-icon" viewBox="0 0 24 24">
+                                    <path fill="#FFFFFF"
+                                        d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z" />
+                                </svg>
+                                <svg class="full-screen-close-icon" viewBox="0 0 24 24">
+                                    <path fill="#FFFFFF"
+                                        d="M5 16h3v3h2v-5H5v2zm3-8H5v2h5V5H8v3zm6 11h2v-3h3v-2h-5v5zm2-11V5h-2v5h5V8h-3z" />
+                                </svg>
+                            </button>
+                        </div>
                     </div>
                 </div>
                 <div class="video-wrapper">
@@ -110,10 +129,16 @@ class utilPlayer {
     }
 
     defineVideo() {
+
+        if (this.src == false) {
+            this.src = this.sources.default.src
+        }
+
         this.videoContainer.querySelector(".video-wrapper").innerHTML =
             `   <video data-setup="{}" tabindex="-1" role="application" src="${this.src}">
                 <source src="${this.src}" type="video/mp4">
                 <p></p>
+                <track kind="captions" src="#">
             </video>`;
         this.video = this.videoContainer.querySelector(".video-container video");
         this.loadingEl = this.videoContainer.querySelector(".loading-overlay");
@@ -125,7 +150,10 @@ class utilPlayer {
         this.video.addEventListener('waiting', () => this.loadingEl.style.display = 'flex');
         this.video.addEventListener('canplay', () => this.loadingEl.style.display = 'none');
 
-        this.videoContainer.addEventListener("fullscreenchange", () => this.videoContainer.dataset.fullscreen = (document.fullscreenElement == null) ? "false" : "true")
+        this.videoContainer.addEventListener("fullscreenchange", () => {
+            this.videoContainer.dataset.fullscreen = (document.fullscreenElement == null) ? "false" : "true"
+            this.handleCursorHide()
+        })
         this.video.addEventListener("enterpictureinpicture", () => { videoContainer.dataset.mini = "true" })
         this.video.addEventListener("leavepictureinpicture", () => { videoContainer.dataset.mini = "false" })
     }
@@ -222,6 +250,11 @@ class utilPlayer {
             this.doubleTapControls) {
             this.enableFSControls()
         }
+
+        if (this.sources != undefined ||
+            this.speed == true) {
+            this.enableVideoOptions()
+        }
     }
 
     handleVolumeChange(e) {
@@ -305,6 +338,30 @@ class utilPlayer {
         }
     }
 
+    handleCursorHide() {
+        const videoControlsEl = this.videoContainer.querySelector(".video-controls")
+
+        if (mobileCheck()) return
+
+        if (document.fullscreenElement == null) {
+            this.video.removeEventListener("mousemove");
+            return
+        }
+
+
+        this.videoContainer.addEventListener('mousemove', () => {
+            if (videoControlsEl.matches(':hover')) {
+                this.videoContainer.dataset.hidecontrols = "false";
+                clearTimeout(this.cursorHideTimeout);
+                return
+            }
+
+            this.videoContainer.dataset.hidecontrols = "false";
+            clearTimeout(this.cursorHideTimeout);
+            this.cursorHideTimeout = setTimeout(() => this.videoContainer.dataset.hidecontrols = "true", 2000);
+        });
+    }
+
     volControls() {
         const el = `
         <div class="volume-controls">
@@ -380,6 +437,7 @@ class utilPlayer {
         this.videoContainer.innerHTML += el
     }
 
+
     enableFSControls() {
         const fsControls = new FullScreenControls({
             playerContainer: this.videoContainer,
@@ -393,177 +451,18 @@ class utilPlayer {
         fsControlsEl.addEventListener('touchmove', (e) => fsControls.handleTouchMove(e));
         fsControlsEl.addEventListener('touchend', () => fsControls.handleTouchEnd());
     }
-}
 
-class FullScreenControls {
-    constructor({ playerContainer, video, sensitivityX, sensitivityY }) {
-        this.video = video
-        this.playerContainer = playerContainer;
-        this.fsTimeline = playerContainer.querySelector(".full-screen-progress-container") || null;
-        this.fsTimelineBar = playerContainer.querySelector(".fs-progress-bar") || null;
+    enableVideoOptions() {
+        const videoOptions = new UtilsVideoOptions({
+            container: this.videoContainer,
+            video: this.video,
+            sources: this.sources,
+            speed: this.speed,
+            captions: this.captions
+        })
 
-        this.fsCurrentTime = playerContainer.querySelector(".fs-current-time") || null;
-        this.fsTotalTime = playerContainer.querySelector(".fs-total-time") || null;
-
-        this.fsVolume = playerContainer.querySelector(".full-screen-volume-container") || null;
-        this.fsVolumeBar = playerContainer.querySelector(".fs-volume-bar") || null;
-
-        this.fsSkipForward = playerContainer.querySelector(".double-tap-right") || null;
-        this.fsSkipBackward = playerContainer.querySelector(".double-tap-left") || null;
-
-        this.isDragging = 0
-        this.initialY = 0
-        this.initialX = 0
-        this.secondsToSkip = 0
-        this.currTotalTime = 0
-        this.isHorizontalDrag = null
-        this.sensitivityX = sensitivityX
-        this.sensitivityY = sensitivityY
-
-        this.lastTapTime = 0
-        this.doubleTaps = 0
-        this.tapTimeout = null
-
-        this.initialVolume;
+        videoOptions.init()
     }
-
-    isFullscreen = () => document.fullscreenElement !== null;
-
-    showTimeline() {
-        this.fsTimeline.style.display = "flex"
-        this.fsTimeline.style.opacity = 1
-    }
-
-    hideTimeline() {
-        this.fsTimeline.style.display = "none"
-        this.fsTimeline.style.opacity = 0
-    }
-
-    showVolume() {
-        this.fsVolume.style.display = "flex"
-        this.fsVolume.style.opacity = 1
-    }
-
-    hideVolume() {
-        this.fsVolume.style.display = "none"
-        this.fsVolume.style.opacity = 0
-    }
-
-    handleVerticalDrag(deltaY) {
-        const volumeSlider = this.playerContainer.querySelector(".volume-slider-container input[type='range']");
-
-        if (this.fsTimeline != null) this.hideTimeline();
-        this.showVolume();
-
-        const screenHeight = window.innerHeight;
-        const volumePercentage = (deltaY / screenHeight) * 100
-
-        const volumeChange = (volumePercentage * this.sensitivityY) / 100;
-
-        const newVolume = Math.min(Math.max(this.initialVolume - volumeChange, 0), 1);
-
-        this.video.volume = newVolume;
-
-        volumeSlider.value = this.video.volume;
-        this.fsVolumeBar.style.backgroundSize = (newVolume * 100) + "% 100%";
-        this.video.muted = this.video.volume === 0;
-        this.playerContainer.dataset.muted = this.video.muted.toString();
-
-        handleBackgroundFill(volumeSlider);
-    }
-
-
-    handleHorizontalDrag(deltaX) {
-        if (this.fsVolume != null) this.hideVolume();
-        this.showTimeline();
-        const screenWidth = window.innerWidth;
-
-        const relativeDistance = deltaX / screenWidth * this.sensitivityX;
-
-        this.secondsToSkip = relativeDistance * this.video.duration;
-        this.playerContainer.dataset.hidecontrols = "true";
-        this.currTotalTime = Math.max(0, Math.min(this.video.currentTime + this.secondsToSkip, this.video.duration));
-        this.fsCurrentTime.textContent = formatDuration(this.currTotalTime);
-        this.fsTimelineBar.style.backgroundSize = (this.currTotalTime * 100) / this.video.duration + "% 100%";
-    };
-
-    
-    handleDoubleTap() {
-        
-        if(this.fsSkipForward == null) return false
-
-        const currentTime = new Date().getTime();
-        const timeSinceLastTap = currentTime - this.lastTapTime;
-        var state = false
-
-        if (timeSinceLastTap < 300) {
-
-            if (this.tapTimeout != null) clearTimeout(this.tapTimeout);
-            const screenWidth = window.innerWidth;
-
-            if (this.initialX >= screenWidth / 2) {
-                this.doubleTaps++
-                this.fsSkipForward.style.opacity = "1";
-                this.fsSkipForward.querySelector('h1').innerHTML = `${Math.abs(this.doubleTaps) * 10} secs`
-            } else {
-                this.doubleTaps--
-                this.fsSkipBackward.style.opacity = "1";
-                this.fsSkipBackward.querySelector('h1').innerHTML = `${Math.abs(this.doubleTaps) * 10} secs`
-            }
-
-            this.tapTimeout = setTimeout(() => {
-                this.fsSkipBackward.style.opacity = "0";
-                this.fsSkipForward.style.opacity = "0";
-                this.video.currentTime = Math.max(0, Math.min(this.video.currentTime + (this.doubleTaps * 10), this.video.duration));
-
-                this.doubleTaps = 0                
-                clearTimeout(this.tapTimeout);
-            }, 800);
-            state = true
-        }
-        this.lastTapTime = currentTime;
-
-        return state
-    };
-
-    handleTouchStart(e) {
-        if (!this.isFullscreen()) return;
-        this.initialX = e.touches[0].clientX;
-        this.initialY = e.touches[0].clientY;
-        this.initialVolume = this.video.volume
-    };
-
-    handleTouchMove(e) {
-        if (!this.isFullscreen()) return;
-
-        this.isDragging = true;
-        const currentX = e.touches[0].clientX;
-        const deltaX = currentX - this.initialX;
-        const currentY = e.touches[0].clientY;
-        const deltaY = currentY - this.initialY;
-        if (this.isHorizontalDrag === null) this.isHorizontalDrag = Math.abs(deltaX) > Math.abs(deltaY);
-        else if (!this.isHorizontalDrag && this.fsVolume != null) this.handleVerticalDrag(deltaY);
-        else if (this.isHorizontalDrag && this.fsTimeline != null) this.handleHorizontalDrag(deltaX);
-        else return
-    };
-
-    handleTouchEnd() {
-        if (this.fsTimeline != null) this.hideTimeline();
-        if (this.fsVolume != null) this.hideVolume();
-
-        if(this.handleDoubleTap()) return
-
-        if (!this.isDragging || !this.isFullscreen()) {
-            this.playerContainer.dataset.hidecontrols = (this.playerContainer.dataset.hidecontrols == "true") ? "false" : "true";
-            return;
-        }
-        this.isDragging = false;
-
-        if (this.fsTimeline == null) return
-
-        if (this.isHorizontalDrag) this.video.currentTime = this.currTotalTime;
-        this.isHorizontalDrag = null
-    };
 }
 
 function mobileCheck() {

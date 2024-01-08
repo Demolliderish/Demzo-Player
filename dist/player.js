@@ -1,27 +1,27 @@
 import FullScreenControls from "./utils/fullscreen.js"
 import UtilsVideoOptions from "./utils/options.js"
 
-class utilPlayer {
+class demzoPlayer {
     constructor(src, {
         container,
         keyboardControls = true,
-        slideControls = null,
+        slideControls = false,
         volumeControls = true,
         doubleTap = false,
         theme = '#C082FF',
-        speedToggle = true,
+        speedControls = true,
         captions = undefined,
-        sources = undefined
+        sources = undefined,
     }) {
         this.src = src
         this.sources = sources
         this.captions = captions
-        this.speed = speedToggle
+        this.speed = speedControls
         this.container = container
         this.theme = theme
         this.keyboardControls = keyboardControls
-        this.slideControlsVol = slideControls?.volume ?? false;
-        this.slideControlsScrub = slideControls?.seek ?? false;
+        this.slideControlsVol = slideControls == true ? true : slideControls.volume ?? false;
+        this.slideControlsScrub = slideControls == true ? true : slideControls.seek ?? false;
         this.volumeControls = volumeControls
         this.doubleTapControls = doubleTap
         this.volume = 0
@@ -38,6 +38,9 @@ class utilPlayer {
     }
 
     init() {
+
+        console.log(this.slideControlsVol)
+        console.log(this.slideControlsScrub)
 
         // Set theme color
         var r = document.querySelector(':root');
@@ -123,9 +126,9 @@ class utilPlayer {
         if (this.volumeControls) this.volControls()
         if (this.keyboardControls) document.addEventListener("keydown", (e) => this.handleKeyboardControl(e));
 
-        if (this.slideControlsVol.enable && this.slideControlsVol) this.slideVol()
-        if (this.slideControlsScrub.enable && this.slideControlsScrub) this.slideScrub()
-        if (this.doubleTapControls) this.doubleTap()
+        if (this.slideControlsVol.enable || this.slideControlsVol) this.slideVol()
+        if (this.slideControlsScrub.enable || this.slideControlsScrub) this.slideScrub()
+        if (this.doubleTapControls.enable || this.doubleTapControls) this.doubleTap()
     }
 
     defineVideo() {
@@ -443,7 +446,8 @@ class utilPlayer {
             playerContainer: this.videoContainer,
             video: this.video,
             sensitivityX: this.slideControlsScrub.sensitivity ? this.slideControlsScrub.sensitivity : 0.25,
-            sensitivityY: this.slideControlsVol.sensitivity ? this.slideControlsVol.sensitivity : 4
+            sensitivityY: this.slideControlsVol.sensitivity ? this.slideControlsVol.sensitivity : 4,
+            doubleTapSkip: this.doubleTapControls.amount ? this.doubleTapControls.amount : 5
         });
 
         const fsControlsEl = this.videoContainer.querySelector(".full-screen-container")
@@ -499,4 +503,4 @@ function formatDuration(time) {
     }
 }
 
-export default utilPlayer;
+export default demzoPlayer;

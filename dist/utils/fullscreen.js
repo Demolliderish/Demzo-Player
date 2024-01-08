@@ -1,5 +1,5 @@
 class FullScreenControls {
-    constructor({ playerContainer, video, sensitivityX, sensitivityY }) {
+    constructor({ playerContainer, video, sensitivityX, sensitivityY, doubleTapSkip }) {
         this.video = video
         this.playerContainer = playerContainer;
         this.fsTimeline = playerContainer.querySelector(".full-screen-progress-container") || null;
@@ -26,6 +26,7 @@ class FullScreenControls {
         this.lastTapTime = 0
         this.doubleTaps = 0
         this.tapTimeout = null
+        this.doubleTapSkip = doubleTapSkip
 
         this.initialVolume;
     }
@@ -107,17 +108,17 @@ class FullScreenControls {
             if (this.initialX >= screenWidth / 2) {
                 this.doubleTaps++
                 this.fsSkipForward.style.opacity = "1";
-                this.fsSkipForward.querySelector('h1').innerHTML = `${Math.abs(this.doubleTaps) * 10} secs`
+                this.fsSkipForward.querySelector('h1').innerHTML = `${Math.abs(this.doubleTaps) * this.doubleTapSkip} secs`
             } else {
                 this.doubleTaps--
                 this.fsSkipBackward.style.opacity = "1";
-                this.fsSkipBackward.querySelector('h1').innerHTML = `${Math.abs(this.doubleTaps) * 10} secs`
+                this.fsSkipBackward.querySelector('h1').innerHTML = `${Math.abs(this.doubleTaps) * this.doubleTapSkip} secs`
             }
 
             this.tapTimeout = setTimeout(() => {
                 this.fsSkipBackward.style.opacity = "0";
                 this.fsSkipForward.style.opacity = "0";
-                this.video.currentTime = Math.max(0, Math.min(this.video.currentTime + (this.doubleTaps * 10), this.video.duration));
+                this.video.currentTime = Math.max(0, Math.min(this.video.currentTime + (this.doubleTaps * this.doubleTapSkip), this.video.duration));
 
                 this.doubleTaps = 0                
                 clearTimeout(this.tapTimeout);
@@ -135,7 +136,7 @@ class FullScreenControls {
         this.initialY = e.touches[0].clientY;
         this.initialVolume = this.video.volume
 
-        this.fsTotalTime.innerHTML = formatDuration(this.video.duration);
+        if (this.fsTotalTime != null) this.fsTotalTime.innerHTML = formatDuration(this.video.duration);
     };
 
     handleTouchMove(e) {

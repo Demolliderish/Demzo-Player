@@ -5,7 +5,7 @@ class UtilsVideoOptions {
         this.toggleSources = sources
         this.toggleSpeed = speed
         this.toggleCaptions = captions
-        this.activeCaption = captions.default.src ?? undefined
+        this.activeCaption = captions?.default.src ?? undefined
         this.captionEl = null
     }
 

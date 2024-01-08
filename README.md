@@ -12,6 +12,10 @@ This is custom made lightweight vanilla JS video-player with useful customizable
 
 OR
 
+```html
+    <link href="https://cdn.jsdelivr.net/npm/demzo-player/dist/styles.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/demzo-player/unpkg.js"></script>
+```
 
 
 **CommonJS:**

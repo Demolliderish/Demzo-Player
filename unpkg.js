@@ -990,5 +990,3 @@ function formatDuration(time) {
         return `${formattedHours}:${formattedMinutes}:${formattedSeconds}`;
     }
 }
-
-export default demzoPlayer;

@@ -134,6 +134,8 @@ class FullScreenControls {
         this.initialX = e.touches[0].clientX;
         this.initialY = e.touches[0].clientY;
         this.initialVolume = this.video.volume
+
+        this.fsTotalTime.innerHTML = formatDuration(this.video.duration);
     };
 
     handleTouchMove(e) {

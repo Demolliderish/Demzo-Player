@@ -7,11 +7,16 @@ This is custom made lightweight vanilla JS video-player with useful customizable
 ## Getting Started
 
 **INSTALLATION**
+
 `npm i demzo-player`
+
+OR
+
+
 
 **CommonJS:**
 ```js
-const Player = require('@demolliderish/demzo-player').default;
+const Player = require('demzo-player').default;
 
 // Create new instance of demzoPlayer
 // Please select the parent node which you want the player to be contained in 'container' parameter
@@ -23,7 +28,7 @@ const player = new Player('[INSERT PATH/URL TO MP4]', {
 
 **ESModule:**
 ```js
-import demzoPlayer from `@demolliderish/demzo-player`
+import demzoPlayer from `demzo-player`
 
 // Create new instance of demzoPlayer
 // Please select the parent node which you want the player to be contained in 'container' parameter

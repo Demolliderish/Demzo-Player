@@ -1,3 +1,5 @@
 'use strict';
 
-module.exports = require('./dist/');
+import demzoPlayer from "./dist/player.js";
+
+export default demzoPlayer

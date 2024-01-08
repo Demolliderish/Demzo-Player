@@ -12,10 +12,5 @@
   },
   "author": "demzo",
   "license": "MIT",
-  "homepage": "https://github.com/Demolliderish/Demzo-Player#readme",
-  "devDependencies": {
-    "@babel/cli": "^7.23.4",
-    "@babel/core": "^7.23.7",
-    "@babel/preset-env": "^7.23.7"
-  }
+  "homepage": "https://github.com/Demolliderish/Demzo-Player#readme"
 }

@@ -6,6 +6,9 @@ This is custom made lightweight vanilla JS video-player with useful customizable
 
 ## Getting Started
 
+**INSTALLATION**
+`npm i demzo-player`
+
 **CommonJS:**
 ```js
 const Player = require('@demolliderish/demzo-player').default;

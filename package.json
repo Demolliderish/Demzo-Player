@@ -1,6 +1,6 @@
 {
   "name": "demzo-player",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "A custom-made video player aimed to add useful and cutomisable features",
   "main": "index.js",
   "scripts": {
